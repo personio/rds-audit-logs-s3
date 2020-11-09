@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  rds-audit-logs-s3
+
+  Lambda function to ingest RDS logs from RDS to S3
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: rds-audit-logs-s3
+    Description: Lambda function to ingest RDS logs from RDS to S3
+    Author: Personio GmbH
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['rds', 's3']
+    HomePageUrl: https://github.com/personio/rds-audit-logs-s3
+    SemanticVersion: 0.2.1
+    SourceCodeUrl: https://github.com/personio/rds-audit-logs-s3
+
+Parameters:
+  Prefix:
+    Type: String
+  BucketName:
+    Type: String
+  KmsKeyId:
+    Type: String
+  RdsInstanceIdentifier:
+    Type: String
+  Debug:
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+
+Globals:
+  Function:
+    Runtime: go1.x
+
+Resources:
+  RdsAuditLogsS3Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${Prefix}-rds-audit-logs-s3"
+      CodeUri: rdsauditlogss3/
+      Handler: rdsauditlogss3
+      Timeout: 900
+      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
+      Events:
+        TriggerEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+      Environment:
+        Variables:
+          RDS_INSTANCE_IDENTIFIER: !Ref RdsInstanceIdentifier
+          S3_BUCKET_NAME: !Ref BucketName
+          DYNAMODB_TABLE_NAME: !Ref DynamoDBTable
+          DEBUG: !Ref Debug
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTable
+        - S3WritePolicy:
+            BucketName: !Ref BucketName
+        - KMSDecryptPolicy:
+            KeyId: !Ref KmsKeyId
+        - KMSEncryptPolicy:
+            KeyId: !Ref KmsKeyId
+        - Statement:
+            - Sid: SSMDescribeParametersPolicy
+              Effect: Allow
+              Action:
+                - rds:DownloadCompleteDBLogFile
+                - rds:DescribeDBLogFiles
+                - rds:DescribeDBInstances
+              Resource: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:db:${RdsInstanceIdentifier}"
+
+  LogsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${RdsAuditLogsS3Function}"
+      RetentionInDays: 30
+
+  DynamoDBTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      TableName: !Sub "${Prefix}-rds-audit-logs-s3"
+
+Outputs:
+  RdsAuditLogsS3Function:
+    Value: !GetAtt RdsAuditLogsS3Function.Arn
