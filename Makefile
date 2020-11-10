@@ -12,5 +12,9 @@ package: build
 	$(SAM) package --s3-bucket $(S3_BUCKET) --region $(AWS_REGION) --output-template-file $(PACKAGED_TEMPLATE_FILE)
 
 .PHONY: publish
-publish: package
-	$(SAM) publish --template-file $(PACKAGED_TEMPLATE_FILE)
+publish: guard-VERSION
+	$(SAM) publish --semantic-version $(VERSION) --template-file $(PACKAGED_TEMPLATE_FILE)
+
+.PHONY: guard-%
+guard-%:
+	$(if $(value ${*}),,$(error "Variable ${*} not set!"))
