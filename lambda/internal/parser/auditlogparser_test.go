@@ -59,17 +59,3 @@ func TestWriteLogEntryMultiLine(t *testing.T) {
 
 	assert.Equal(t, "20200714 12:30:03,ip-172-27-1-97,rdsadmin,localhost,26,161171,QUERY,mysql,'SELECT 1',0" + "\n", entries[2].LogLine.String())
 }
-
-// func TestWriteLogEntryFile(t *testing.T) {
-// 	parser := NewAuditLogParser()
-
-// 	logFileTimestamp := int64(1595332052)
-// 	logFile, err := ioutil.ReadFile("/Users/user/Downloads/server_audit.log.1")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	content := string(logFile)
-
-// 	_, err = parser.ParseEntries(content, logFileTimestamp)
-// 	assert.NoError(t, err)
-// }
