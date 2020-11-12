@@ -1,0 +1,149 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  rds-audit-logs-s3
+
+  Lambda function to ingest RDS instance audit logs to S3
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: rds-audit-logs-s3
+    Description: Lambda function to ingest RDS instance audit logs to S3
+    Author: Personio GmbH
+    SpdxLicenseId: Apache-2.0
+    LicenseUrl: LICENSE.txt
+    ReadmeUrl: README.md
+    Labels: ['rds', 's3', 'lambda', 'logs', 'audit']
+    HomePageUrl: https://github.com/personio/rds-audit-logs-s3
+    SourceCodeUrl: https://github.com/personio/rds-audit-logs-s3
+
+Parameters:
+  Prefix:
+    Type: String
+    Description: Prefix to use for created AWS resources, eg. "myinstance-"
+  BucketName:
+    Type: String
+    Description: Name of the S3 bucket where logs should be stored in
+  KmsKeyArn:
+    Type: String
+    Description: ARN of the KMS key used for the S3 bucket (optional)
+    Default: ""
+  RdsInstanceIdentifier:
+    Type: String
+    Description: DB identifier of the RDS instance to get logs from
+  LambdaDebug:
+    Type: String
+    Description: Wether to enable debug logs in the Lambda function
+    Default: false
+    AllowedValues:
+      - true
+      - false
+  LambdaMemorySize:
+    Type: Number
+    Description: Memory for the Lambda function in MB
+    Default: 3008
+  LambdaTimeout:
+    Type: Number
+    Description: Timeout of the Lambda function in seconds
+    Default: 900
+  LambdaTriggerRate:
+    Type: Number
+    Description: Rate for triggering the Lambda function in minutes
+    Default: 15
+  LambdaLogRetention:
+    Type: Number
+    Description: Number of days to retain the logs of the Lambda function
+    Default: 30
+    AllowedValues:
+      - 1
+      - 3
+      - 5
+      - 7
+      - 14
+      - 30
+      - 60
+      - 90
+      - 120
+      - 150
+      - 180
+      - 365
+      - 400
+      - 545
+      - 731
+      - 1827
+      - 3653
+
+Globals:
+  Function:
+    Runtime: go1.x
+
+Conditions:
+  LambdaTriggerRate1Minute: !Equals [ !Ref LambdaTriggerRate, 1 ]
+  KmsKeyProvided: !Not [ !Equals [ !Ref KmsKeyArn, "" ] ]
+
+Resources:
+  RdsAuditLogsS3Function:
+    Type: AWS::Serverless::Function
+    DependsOn: RdsAuditLogsS3FunctionLogGroup
+    Properties:
+      FunctionName: !Sub "${Prefix}-rds-audit-logs-s3"
+      Description: !Sub "Lambda function for RDS audit log ingestion of instance ${RdsInstanceIdentifier} to S3"
+      CodeUri: lambda/
+      Handler: lambda
+      MemorySize: !Ref LambdaMemorySize
+      Timeout: !Ref LambdaTimeout
+      Events:
+        TriggerEvent:
+          Type: Schedule
+          Properties:
+            Name: !Sub "${Prefix}-rds-audit-logs-s3"
+            Schedule: !If [LambdaTriggerRate1Minute, !Sub "rate(${LambdaTriggerRate} minute)", !Sub "rate(${LambdaTriggerRate} minutes)"]
+            Description: !Sub "Trigger Lambda function ${Prefix}-rds-audit-logs-s3 every ${LambdaTriggerRate} minutes"
+      Environment:
+        Variables:
+          RDS_INSTANCE_IDENTIFIER: !Ref RdsInstanceIdentifier
+          S3_BUCKET_NAME: !Ref BucketName
+          DYNAMODB_TABLE_NAME: !Ref DynamoDBTable
+          DEBUG: !Ref LambdaDebug
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DynamoDBTable
+        - S3WritePolicy:
+            BucketName: !Ref BucketName
+        - Statement:
+            - Sid: RdsGetLogs
+              Effect: Allow
+              Action:
+                - rds:DownloadCompleteDBLogFile
+                - rds:DescribeDBLogFiles
+                - rds:DescribeDBInstances
+              Resource: !Sub "arn:${AWS::Partition}:rds:${AWS::Region}:${AWS::AccountId}:db:${RdsInstanceIdentifier}"
+        - !If
+          - KmsKeyProvided
+          - Statement:
+              - Sid: KmsS3Policy
+                Effect: Allow
+                Action:
+                  - kms:GenerateDataKey
+                  - kms:Encrypt
+                  - kms:Decrypt
+                Resource: !Ref KmsKeyArn
+          - !Ref "AWS::NoValue"
+
+  RdsAuditLogsS3FunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Prefix}-rds-audit-logs-s3"
+      RetentionInDays: !Ref LambdaLogRetention
+
+  DynamoDBTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      TableName: !Sub "${Prefix}-rds-audit-logs-s3"
+
+Outputs:
+  RdsAuditLogsS3Function:
+    Value: !GetAtt RdsAuditLogsS3Function.Arn
