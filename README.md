@@ -1,11 +1,20 @@
 # rds-audit-logs-s3
 
+## Requirements
+* python3
+* go
+
+## Running the unit tests
+
+```
+make test
+```
+
 ## Building and packaging the project
 
 ```
 make package
 ```
-
 
 ## Releasing a new version
 
