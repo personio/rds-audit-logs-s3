@@ -19,8 +19,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             return context.payload.ref.replace(/v/, '');
-      - name: Echo version
-        run: echo VERSION=${{ steps.version.outputs.result }}
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
