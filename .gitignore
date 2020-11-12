@@ -1,3 +1,4 @@
 /packaged.yaml
 /.aws-sam/
 /lambda/coverage.out
+/venv/
