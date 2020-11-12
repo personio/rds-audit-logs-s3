@@ -3,6 +3,7 @@ AWS_REGION             := eu-central-1
 S3_BUCKET              := personio-oss-sar-rds-audit-logs-s3-$(AWS_REGION)
 PACKAGED_TEMPLATE_FILE := packaged.yaml
 
+# Run unit tests of Lamba function code
 .PHONY: test
 test:
 	cd lambda && go test ./... -v -race -count=1 -cover $(PACKAGES) -coverprofile=coverage.out
