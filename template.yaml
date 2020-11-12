@@ -20,7 +20,7 @@ Metadata:
 Parameters:
   Prefix:
     Type: String
-    Description: Prefix to use for created AWS resource, eg. "myinstance-"
+    Description: Prefix to use for created AWS resources, eg. "myinstance-"
   BucketName:
     Type: String
     Description: Name of the S3 bucket where logs should be stored in
@@ -92,7 +92,6 @@ Resources:
       Handler: lambda
       MemorySize: !Ref LambdaMemorySize
       Timeout: !Ref LambdaTimeout
-      Tracing: Active # https://docs.aws.amazon.com/lambda/latest/dg/lambda-x-ray.html
       Events:
         TriggerEvent:
           Type: Schedule

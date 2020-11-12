@@ -2,7 +2,7 @@
 
 ## Requirements
 * python3
-* go
+* go 1.14
 
 ## Running the unit tests
 
