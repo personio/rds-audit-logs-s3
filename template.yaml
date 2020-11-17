@@ -145,5 +145,7 @@ Resources:
       TableName: !Ref Name
 
 Outputs:
-  RdsAuditLogsS3Function:
+  LambdaFunctionArn:
     Value: !GetAtt RdsAuditLogsS3Function.Arn
+  LambdaFunctionName:
+    Value: !Ref RdsAuditLogsS3Function
