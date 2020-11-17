@@ -25,3 +25,11 @@ jobs:
           fetch-depth: 1
       - name: test
         run: make test
+  cfn-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: cfn-lint
+        run: make cfn-lint
