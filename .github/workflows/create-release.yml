@@ -51,3 +51,4 @@ jobs:
           asset_content_type: text/yaml
       - name: Publish to Serverless Application Repository
         run: make publish VERSION=${{ steps.version.outputs.result }}
+    if: "startsWith(github.ref, 'refs/tags/')"
