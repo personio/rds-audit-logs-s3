@@ -18,9 +18,9 @@ Metadata:
     SourceCodeUrl: https://github.com/personio/rds-audit-logs-s3
 
 Parameters:
-  Prefix:
+  Name:
     Type: String
-    Description: Prefix to use for created AWS resources, eg. "myinstance-"
+    Description: Name to use for created AWS resources, eg. "rds-audit-logs-s3"
   BucketName:
     Type: String
     Description: Name of the S3 bucket where logs should be stored in
@@ -86,7 +86,7 @@ Resources:
     Type: AWS::Serverless::Function
     DependsOn: RdsAuditLogsS3FunctionLogGroup
     Properties:
-      FunctionName: !Sub "${Prefix}-rds-audit-logs-s3"
+      FunctionName: !Ref Name
       Description: !Sub "Lambda function for RDS audit log ingestion of instance ${RdsInstanceIdentifier} to S3"
       CodeUri: lambda/
       Handler: lambda
@@ -96,9 +96,9 @@ Resources:
         TriggerEvent:
           Type: Schedule
           Properties:
-            Name: !Sub "${Prefix}-rds-audit-logs-s3"
+            Name: !Ref Name
             Schedule: !If [LambdaTriggerRate1Minute, !Sub "rate(${LambdaTriggerRate} minute)", !Sub "rate(${LambdaTriggerRate} minutes)"]
-            Description: !Sub "Trigger Lambda function ${Prefix}-rds-audit-logs-s3 every ${LambdaTriggerRate} minutes"
+            Description: !Sub "Trigger Lambda function ${Name} every ${LambdaTriggerRate} minutes"
       Environment:
         Variables:
           RDS_INSTANCE_IDENTIFIER: !Ref RdsInstanceIdentifier
@@ -133,7 +133,7 @@ Resources:
   RdsAuditLogsS3FunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "/aws/lambda/${Prefix}-rds-audit-logs-s3"
+      LogGroupName: !Sub "/aws/lambda/${Name}"
       RetentionInDays: !Ref LambdaLogRetention
 
   DynamoDBTable:
@@ -142,7 +142,7 @@ Resources:
       PrimaryKey:
         Name: id
         Type: String
-      TableName: !Sub "${Prefix}-rds-audit-logs-s3"
+      TableName: !Ref Name
 
 Outputs:
   RdsAuditLogsS3Function:
