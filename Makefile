@@ -2,8 +2,10 @@ SAM                    := venv/bin/sam
 AWS_REGION             := eu-central-1
 S3_BUCKET              := personio-oss-sar-rds-audit-logs-s3-$(AWS_REGION)
 PACKAGED_TEMPLATE_FILE := packaged.yaml
+CFN_LINT               := venv/bin/cfn-lint
 
-# Install sam from requirements.txt
+# Install sam & cfn-lint from requirements.txt
+$(CFN_LINT): venv
 $(SAM): venv
 venv: requirements.txt
 	python3 -m venv venv
@@ -20,6 +22,11 @@ test:
 .PHONY: build
 build: $(SAM)
 	$(SAM) build
+
+# Lint the cloudformation template
+.PHONY: cfn-lint
+cfn-lint: $(CFN_LINT)
+	$(CFN_LINT) template.yaml
 
 # Package AWS SAM application
 .PHONY: package
