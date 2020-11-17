@@ -13,7 +13,7 @@ Metadata:
     SpdxLicenseId: Apache-2.0
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
-    Labels: ['rds', 's3', 'lambda', 'logs', 'audit']
+    Labels: [ 'rds', 's3', 'lambda', 'logs', 'audit' ]
     HomePageUrl: https://github.com/personio/rds-audit-logs-s3
     SourceCodeUrl: https://github.com/personio/rds-audit-logs-s3
 
@@ -42,6 +42,8 @@ Parameters:
     Type: Number
     Description: Memory for the Lambda function in MB
     Default: 3008
+    MinValue: 128
+    MaxValue: 3008
   LambdaTimeout:
     Type: Number
     Description: Timeout of the Lambda function in seconds
@@ -97,7 +99,7 @@ Resources:
           Type: Schedule
           Properties:
             Name: !Ref Name
-            Schedule: !If [LambdaTriggerRate1Minute, !Sub "rate(${LambdaTriggerRate} minute)", !Sub "rate(${LambdaTriggerRate} minutes)"]
+            Schedule: !If [ LambdaTriggerRate1Minute, !Sub "rate(${LambdaTriggerRate} minute)", !Sub "rate(${LambdaTriggerRate} minutes)" ]
             Description: !Sub "Trigger Lambda function ${Name} every ${LambdaTriggerRate} minutes"
       Environment:
         Variables:
