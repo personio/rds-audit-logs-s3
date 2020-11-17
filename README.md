@@ -21,6 +21,12 @@ The ingestion process is as follows:
 8. Save timestamp in DynamoDB
 9. Continue at 2.
 
+## Database setup
+
+Make sure to enable audit logs in the RDS instance as described in [https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.MySQL.Options.AuditPlugin.html](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Appendix.MySQL.Options.AuditPlugin.html).
+Also ensure to keep enough rotations of the audit logs to allow the Lambda function to get all logs which were written during the interval the Lambda function is invoked.
+Use the options `SERVER_AUDIT_FILE_ROTATE_SIZE` & `SERVER_AUDIT_FILE_ROTATIONS` to configure this.
+
 ## Example setup using Terraform
 
 ```hcl-terraform
