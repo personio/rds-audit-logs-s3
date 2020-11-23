@@ -1,0 +1,8 @@
+version: 2
+
+updates:
+  # Maintain dependencies for Golang
+  - package-ecosystem: "gomod"
+    directory: "lambda/"
+    schedule:
+      interval: "daily"
