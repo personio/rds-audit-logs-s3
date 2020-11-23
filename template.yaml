@@ -10,7 +10,7 @@ Metadata:
     Name: rds-audit-logs-s3
     Description: Lambda function to ingest RDS instance audit logs to S3
     Author: Personio GmbH
-    SpdxLicenseId: Apache-2.0
+    SpdxLicenseId: MIT
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
     Labels: [ 'rds', 's3', 'lambda', 'logs', 'audit' ]
