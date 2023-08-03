@@ -72,12 +72,14 @@ func (p *Processor) Process() error {
 		}
 
 		for _, entry := range logEntries {
-			processedLogFiles += 1
+			if entry != nil {
+				processedLogFiles += 1
 
-			err := p.S3Writer.WriteLogEntry(*entry)
-			if err != nil {
-				logrus.WithError(err).Warn("Could not write log entry")
-				return fmt.Errorf("could not write log entry: %v", err)
+				err := p.S3Writer.WriteLogEntry(*entry)
+				if err != nil {
+					logrus.WithError(err).Warn("Could not write log entry")
+					return fmt.Errorf("could not write log entry: %v", err)
+				}
 			}
 		}
 

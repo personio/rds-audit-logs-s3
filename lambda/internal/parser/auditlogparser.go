@@ -34,7 +34,13 @@ func (p *AuditLogParser) ParseEntries(data io.Reader, logFileTimestamp int64) ([
 			return nil, fmt.Errorf("could not parse data")
 		}
 
-		ts, err := time.Parse("20060102 15:04:05", record[0])
+		timestamp, _ := strconv.ParseInt(record[0], 10, 64)
+		epochSeconds := timestamp / 1000000
+		t := time.Unix(epochSeconds, 0)
+		formatTime := t.Format("20060102 15:04:05")
+
+		ts, err := time.Parse("20060102 15:04:05", formatTime)
+
 		if err != nil {
 			return nil, fmt.Errorf("could not parse time: %v", err)
 		}

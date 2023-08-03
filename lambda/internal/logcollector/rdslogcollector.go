@@ -60,7 +60,7 @@ func NewRdsLogCollector(api rdsiface.RDSAPI, httpClient HTTPClient, region strin
 		region:             region,
 		httpClient:         httpClient,
 		dbType:             dbType,
-		logFile:            "audit/server_audit.log",
+		logFile:            "audit/audit.log",
 		instanceIdentifier: rdsInstanceIdentifier,
 	}
 }
@@ -178,6 +178,8 @@ func (c *RdsLogCollector) setRdsInstanceDBType(instance *rds.DBInstance) error {
 		dbType = "mysql"
 	case "postgres":
 		dbType = "postgres"
+	case "aurora-mysql":
+		dbType = "mysql"
 	default:
 		return fmt.Errorf("unsupported engine %s", engine)
 	}
@@ -242,7 +244,7 @@ func findLogFileNewerThanTimestamp(logFiles []LogFile, finishedLogFileTimestamp 
 	sort.SliceStable(logFiles, func(i, j int) bool { return logFiles[i].LastWritten < logFiles[j].LastWritten })
 
 	for _, l := range logFiles {
-		if l.LastWritten > finishedLogFileTimestamp && l.IsRotatedFile() {
+		if l.LastWritten > finishedLogFileTimestamp {
 			return &l, nil
 		}
 	}
