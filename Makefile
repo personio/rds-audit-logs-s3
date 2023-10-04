@@ -7,10 +7,6 @@ CFN_LINT               := venv/bin/cfn-lint
 # Install sam & cfn-lint from requirements.txt
 $(CFN_LINT): venv
 $(SAM): venv
-venv: requirements.txt
-	python3 -m venv venv
-	venv/bin/pip install -r requirements.txt
-	touch venv
 
 # Run unit tests of Lamba function code
 .PHONY: test
