@@ -51,6 +51,8 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	sqlEngine := "mysql"
+
 	// Initialize AWS session
 	sessionConfig := &aws.Config{
 		Region: aws.String(c.AwsRegion),
@@ -69,7 +71,7 @@ func main() {
 				logcollector.NewAWSHttpClient(sess),
 				c.AwsRegion,
 				c.RdsInstanceIdentifier,
-				"mysql",
+				sqlEngine,
 			),
 			s3writer.NewS3Writer(
 				s3manager.NewUploader(sess),
