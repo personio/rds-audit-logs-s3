@@ -11,15 +11,12 @@ An instance of the application has to be set up for each database you want to ge
 Each Lambda function is called periodically by Cloudwatch events.
 
 The ingestion process is as follows:
-1. Get latest timestamp (timestamp of latest processed log file) from DynamoDB
-2. Use timestamp to get next audit log file (which must already be rotated)
-3. Abort if no log file has been found
-4. Get all log data for log file
-5. Check if log file has been rotated in the meantime and retry if that is the case
-6. Parse all log data for log file
-7. Write log data to S3 (using the timestamp and the date as part of the key -> "Athena layout")
-8. Save timestamp in DynamoDB
-9. Continue at 2.
+1. Use timestamp of 1 hour to get next audit log file (which must already be rotated)
+2. Abort if no log file has been found
+3. Get all log data for log file
+4. Check if log file has been rotated in the meantime and retry if that is the case
+5. Parse all log data for log file
+6. Write log data to S3 (using the timestamp and the date as part of the key -> "Athena layout")
 
 ## Database setup
 
