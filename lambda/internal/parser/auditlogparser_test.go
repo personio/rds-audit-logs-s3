@@ -7,18 +7,18 @@ import (
 	"testing"
 )
 
-// func TestWriteLogEntrySingleLine(t *testing.T) {
-// 	parser := NewAuditLogParser()
+func TestWriteLogEntrySingleLine(t *testing.T) {
+	parser := NewAuditLogParser()
 
-// 	logFileTimestamp := int64(1595332052)
-// 	logLine := "20200714 07:05:25,ip-172-27-1-97,rdsadmin,localhost,26,47141561040897,QUERY,mysql,'SELECT NAME, VALUE FROM mysql.rds_configuration',0"
-// 	entries, err := parser.ParseEntries(strings.NewReader(logLine), logFileTimestamp)
-// 	assert.NoError(t, err)
+	logFileTimestamp := int64(1595332052)
+	logLine := "20200714 07:05:25,ip-172-27-1-97,rdsadmin,localhost,26,47141561040897,QUERY,mysql,'SELECT NAME, VALUE FROM mysql.rds_configuration',0"
+	entries, err := parser.ParseEntries(strings.NewReader(logLine), logFileTimestamp)
+	assert.NoError(t, err)
 
-// 	assert.Equal(t, entity.NewLogEntryTimestamp(2020, 7, 14, 7), entries[0].Timestamp)
-// 	assert.Equal(t, logLine + "\n", entries[0].LogLine.String())
-// 	assert.Equal(t, logFileTimestamp, entries[0].LogFileTimestamp)
-// }
+	assert.Equal(t, entity.NewLogEntryTimestamp(2020, 7, 14, 7), entries[0].Timestamp)
+	assert.Equal(t, logLine + "\n", entries[0].LogLine.String())
+	assert.Equal(t, logFileTimestamp, entries[0].LogFileTimestamp)
+}
 
 func TestWriteLogEntryMultiLine(t *testing.T) {
 	parser := NewAuditLogParser()
