@@ -77,7 +77,7 @@ Parameters:
 
 Globals:
   Function:
-    Runtime: go1.x
+    Runtime: provided.al2023
 
 Conditions:
   LambdaTriggerRate1Minute: !Equals [ !Ref LambdaTriggerRate, 1 ]
@@ -87,6 +87,8 @@ Resources:
   RdsAuditLogsS3Function:
     Type: AWS::Serverless::Function
     DependsOn: RdsAuditLogsS3FunctionLogGroup
+    Metadata:
+      BuildMethod: go1.x
     Properties:
       FunctionName: !Ref Name
       Description: !Sub "Lambda function for RDS audit log ingestion of instance ${RdsInstanceIdentifier} to S3"
