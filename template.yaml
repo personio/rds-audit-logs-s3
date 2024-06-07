@@ -93,7 +93,7 @@ Resources:
       FunctionName: !Ref Name
       Description: !Sub "Lambda function for RDS audit log ingestion of instance ${RdsInstanceIdentifier} to S3"
       CodeUri: lambda/
-      Handler: lambda
+      Handler: bootstrap
       MemorySize: !Ref LambdaMemorySize
       Timeout: !Ref LambdaTimeout
       Events:
